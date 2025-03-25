@@ -1,0 +1,10 @@
+{
+    "videos": [
+        {
+            "id": 1,
+            "title": "USSR Video",
+            "description": "A historical video about the USSR.",
+            "filePath": "video/USSR.mp4"
+        }
+    ]
+}

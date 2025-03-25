@@ -1,0 +1,40 @@
+body{
+    background-color: bisque;
+}
+
+#canvas{
+    border-color: black;
+    border: double;
+    justify-content: center;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+}
+
+#title{
+    position: -webkit-sticky;
+    margin-left: 40%;  
+}
+
+#previous, #next, #auto{
+    margin: auto ;
+    /* justify-content: space-evenly; */
+    border-radius: 80px;
+    width: 5%;
+    height: 5%;
+    justify-content: left;
+    /* margin-left: 10%; */
+}
+
+#pause, #play, #upload {
+    border-radius: 80px;
+    width: 5%;
+    height: 5%;
+    margin-left: 40%;
+    justify-content: right;
+    margin: 0 10px; /* Adds spacing between the buttons */
+}
+
