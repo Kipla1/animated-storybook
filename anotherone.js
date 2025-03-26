@@ -1,0 +1,231 @@
+const title = document.getElementById('title');
+const previous = document.getElementById('previous');
+const next = document.getElementById('next');
+const auto = document.getElementById('auto');
+const videoSection = document.getElementById('video-section');
+const pan = document.getElementById('pan');
+const playButton = document.getElementById('play');
+const pauseButton = document.getElementById('pause');
+const upload = document.getElementById('upload');
+const deleteBtn = document.getElementById('delete')
+const url = 'http://localhost:3000/pages'; 
+
+fetch(url)
+    .then(response => response.json())
+    .then(data => loadPictures(data))
+    .catch(err => console.error('Error fetching pages:', err));
+
+function loadPictures(data) {
+    data.forEach(page => {
+        const picture = document.createElement('img');
+        picture.src = page.filepath;
+        picture.alt = page.title;
+
+        playButton.addEventListener('click', () => {
+            videoSection.innerHTML = ''; 
+            videoSection.appendChild(picture);
+        });
+    });
+}
+
+// Create a modal for user input
+const modal = document.createElement('div');
+modal.style.position = 'fixed';
+modal.style.top = '50%';
+modal.style.left = '50%';
+modal.style.transform = 'translate(-50%, -50%)';
+modal.style.backgroundColor = 'white';
+modal.style.padding = '20px';
+modal.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+modal.style.display = 'none'; // Initially hidden
+modal.style.zIndex = '1000';
+
+// Create input fields and a submit button
+const pageNumberInput = document.createElement('input');
+pageNumberInput.type = 'number';
+pageNumberInput.placeholder = 'Page Number';
+pageNumberInput.style.display = 'block';
+pageNumberInput.style.marginBottom = '10px';
+
+const pageTitleInput = document.createElement('input');
+pageTitleInput.type = 'text';
+pageTitleInput.placeholder = 'Page Title';
+pageTitleInput.style.display = 'block';
+pageTitleInput.style.marginBottom = '10px';
+
+const pageSourceInput = document.createElement('input');
+pageSourceInput.type = 'text';
+pageSourceInput.placeholder = 'Page Source (URL)';
+pageSourceInput.style.display = 'block';
+pageSourceInput.style.marginBottom = '10px';
+
+const submitButton = document.createElement('button');
+submitButton.textContent = 'Submit';
+submitButton.style.display = 'block';
+submitButton.style.marginTop = '10px';
+
+// Append inputs and button to the modal
+modal.appendChild(pageNumberInput);
+modal.appendChild(pageTitleInput);
+modal.appendChild(pageSourceInput);
+modal.appendChild(submitButton);
+document.body.appendChild(modal);
+
+// Show the modal when the upload button is clicked
+upload.addEventListener('click', () => {
+    modal.style.display = 'block';
+});
+
+// Handle the submit button click
+submitButton.addEventListener('click', () => {
+    const newPage = {
+        page: pageNumberInput.value,
+        title: pageTitleInput.value,
+        filepath: pageSourceInput.value,
+    };
+
+    if (!newPage.page || !newPage.title || !newPage.filepath) {
+        alert('Please fill in all fields.');
+        return;
+    }
+
+    // Post the new page to the JSON server
+    postNewPage(newPage);
+
+    // Hide the modal and clear the inputs
+    modal.style.display = 'none';
+    pageNumberInput.value = '';
+    pageTitleInput.value = '';
+    pageSourceInput.value = '';
+});
+
+function postNewPage(newPage) {
+    fetch(url, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPage)
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('New page added successfully!');
+            return response.json();
+        } else {
+            throw new Error('Failed to add new page');
+        }
+    })
+    .then(data => console.log('Posted data:', data))
+    .catch(err => console.error('Error posting new page:', err));
+}
+
+let currentIndex = 0; // Track the current page index
+let pages = []; // Store the pages fetched from the JSON server
+let autoInterval = null; // Store the interval ID for the auto mode
+
+// Fetch existing pages
+fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        pages = data; // Store the fetched pages
+        loadPicture(currentIndex); // Load the first picture
+    })
+    .catch(err => console.error('Error fetching pages:', err));
+
+function loadPicture(index) {
+    if (pages.length === 0) {
+        console.error('No pages available.');
+        return;
+    }
+
+    // Ensure the index is within bounds
+    if (index < 0 || index >= pages.length) {
+        console.error('Index out of bounds.');
+        return;
+    }
+
+    const page = pages[index];
+    const picture = document.createElement('img');
+    picture.src = page.filepath;
+    picture.alt = page.title;
+
+    videoSection.innerHTML = ''; // Clear the video section
+    videoSection.appendChild(picture); // Display the current picture
+    title.textContent = page.title; // Update the title
+}
+
+// Handle the next button click
+next.addEventListener('click', () => {
+    if (currentIndex < pages.length - 1) {
+        currentIndex++; // Move to the next page
+        loadPicture(currentIndex);
+    } else {
+        alert('You are on the last page.');
+    }
+});
+
+// Handle the previous button click
+previous.addEventListener('click', () => {
+    if (currentIndex > 0) {
+        currentIndex--; // Move to the previous page
+        loadPicture(currentIndex);
+    } else {
+        alert('You are on the first page.');
+    }
+});
+
+// Handle the auto button click
+auto.addEventListener('click', () => {
+    if (autoInterval) {
+        clearInterval(autoInterval);
+        autoInterval = null;
+    } else {
+        // Start auto mode
+        autoInterval = setInterval(() => {
+            currentIndex = (currentIndex + 1) % pages.length; // Loop back to the first page
+            loadPicture(currentIndex);
+        }, 2000); // Change image every 2 seconds
+    }
+});
+
+deleteBtn.addEventListener('click', () => {
+    if (pages.length === 0) {
+        alert('No pages available to delete.');
+        return;
+    }
+
+    // Ask the user for confirmation
+    const confirmation = confirm(`Are you sure you want to delete the page: "${pages[currentIndex].title}"?`);
+    if (!confirmation) {
+        return; // Exit if the user cancels
+    }
+
+    // Get the ID of the current page
+    const pageId = pages[currentIndex].id;
+
+    // Send a DELETE request to the JSON server
+    fetch(`${url}/${pageId}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Page deleted successfully!');
+            // Remove the page from the local `pages` array
+            pages.splice(currentIndex, 1);
+
+            // Adjust the `currentIndex` to stay within bounds
+            if (currentIndex >= pages.length) {
+                currentIndex = pages.length - 1;
+            }
+
+            // Reload the next or previous picture
+            if (pages.length > 0) {
+                loadPicture(currentIndex);
+            } else {
+                videoSection.innerHTML = ''; // Clear the video section if no pages are left
+                title.textContent = ''; // Clear the title
+            }
+        } else {
+            throw new Error('Failed to delete the page.');
+        }
+    })
+    .catch(err => console.error('Error deleting the page:', err));
+});
