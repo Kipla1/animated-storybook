@@ -28,17 +28,22 @@ function loadPictures(data) {
     });
 }
 
-// Create a modal for user input
-const modal = document.createElement('div');
-modal.style.position = 'fixed';
-modal.style.top = '50%';
-modal.style.left = '50%';
-modal.style.transform = 'translate(-50%, -50%)';
-modal.style.backgroundColor = 'white';
-modal.style.padding = '20px';
-modal.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-modal.style.display = 'none'; // Initially hidden
-modal.style.zIndex = '1000';
+// Create a uploadDiv for user input
+const uploadDiv = document.createElement('div');
+uploadDiv.style.position = 'fixed';
+uploadDiv.style.top = '50%';
+uploadDiv.style.left = '50%';
+uploadDiv.style.transform = 'translate(-50%, -50%)';
+uploadDiv.style.backgroundColor = 'darksalmon';
+uploadDiv.style.borderRadius = '20px'
+uploadDiv.style.padding = '20px';
+uploadDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+uploadDiv.style.display = 'none'; // Initially hidden
+uploadDiv.style.zIndex = '1000';
+
+// uploadDive title
+const uploadTitle = document.createElement('h3')
+uploadTitle.textContent = 'Enter Submission Details Below'
 
 // Create input fields and a submit button
 const pageNumberInput = document.createElement('input');
@@ -46,34 +51,44 @@ pageNumberInput.type = 'number';
 pageNumberInput.placeholder = 'Page Number';
 pageNumberInput.style.display = 'block';
 pageNumberInput.style.marginBottom = '10px';
+pageNumberInput.style.borderRadius = '5px'
+pageNumberInput.style.border = 'none'
 
 const pageTitleInput = document.createElement('input');
 pageTitleInput.type = 'text';
 pageTitleInput.placeholder = 'Page Title';
 pageTitleInput.style.display = 'block';
 pageTitleInput.style.marginBottom = '10px';
+pageTitleInput.style.borderRadius = '5px'
+pageTitleInput.style.border = 'none'
 
 const pageSourceInput = document.createElement('input');
 pageSourceInput.type = 'text';
 pageSourceInput.placeholder = 'Page Source (URL)';
 pageSourceInput.style.display = 'block';
 pageSourceInput.style.marginBottom = '10px';
+pageSourceInput.style.borderRadius = '5px'
+pageSourceInput.style.border = 'none'
 
 const submitButton = document.createElement('button');
 submitButton.textContent = 'Submit';
 submitButton.style.display = 'block';
 submitButton.style.marginTop = '10px';
+submitButton.style.borderRadius = '5px'
+submitButton.style.border = 'none'
 
-// Append inputs and button to the modal
-modal.appendChild(pageNumberInput);
-modal.appendChild(pageTitleInput);
-modal.appendChild(pageSourceInput);
-modal.appendChild(submitButton);
-document.body.appendChild(modal);
 
-// Show the modal when the upload button is clicked
+// Append inputs and button to the uploadDiv
+uploadDiv.appendChild(uploadTitle);
+uploadDiv.appendChild(pageNumberInput);
+uploadDiv.appendChild(pageTitleInput);
+uploadDiv.appendChild(pageSourceInput);
+uploadDiv.appendChild(submitButton);
+document.body.appendChild(uploadDiv);
+
+// Show the uploadDiv when the upload button is clicked
 upload.addEventListener('click', () => {
-    modal.style.display = 'block';
+    uploadDiv.style.display = 'block';
 });
 
 // Handle the submit button click
@@ -92,8 +107,8 @@ submitButton.addEventListener('click', () => {
     // Post the new page to the JSON server
     postNewPage(newPage);
 
-    // Hide the modal and clear the inputs
-    modal.style.display = 'none';
+    // Hide the uploadDiv and clear the inputs
+    uploadDiv.style.display = 'none';
     pageNumberInput.value = '';
     pageTitleInput.value = '';
     pageSourceInput.value = '';
